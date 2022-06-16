@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "twitch.api.url",
+  "type": "java.lang.String",
+  "description": "Twitch api url"
+}]}
