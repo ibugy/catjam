@@ -51,6 +51,6 @@ public class TwitchBusiness {
 			twitchApiToken = twitchOauthApiService.getAccessToken(clientId, clientSecret);
 			LOG.info(twitchApiToken);
 		}
-		return twitchApiService.getUser(name, twitchApiToken.getTokenType(), twitchApiToken.getAccessToken(), clientId);
+		return twitchApiService.getUser(name, twitchApiToken.getAccessToken(), clientId);
 	}
 }

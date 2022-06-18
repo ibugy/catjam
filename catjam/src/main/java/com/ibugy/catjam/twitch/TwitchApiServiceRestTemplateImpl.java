@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.ibugy.catjam.twitch.model.TwitchUserInfo;
+import com.ibugy.catjam.twitch.model.TwitchUsersData;
 
 @Service
 @Qualifier("TwitchApiServiceRestTemplateImpl")
@@ -30,16 +31,17 @@ public class TwitchApiServiceRestTemplateImpl implements TwitchApiService {
 	}
 
 	@Override
-	public TwitchUserInfo getUser(String user, String tokenType, String oauthToken, String clientId) {
+	public TwitchUserInfo getUser(String user, String oauthToken, String clientId) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.add(HttpHeaders.AUTHORIZATION, tokenType + " " + oauthToken);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer" + " " + oauthToken);
 		headers.add("Client-Id", clientId);
 		HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-		LOG.info("Getting user info from twitch api");
-		LOG.info(httpEntity);
-		TwitchUserInfo userInfo = restTemplate.exchange(apiUrl, HttpMethod.GET, httpEntity, TwitchUserInfo.class)
+		String requestUrl = apiUrl.toString() + "?login=" + user;
+		TwitchUsersData usersData = restTemplate.exchange(requestUrl, HttpMethod.GET, httpEntity, TwitchUsersData.class)
 			.getBody();
-		LOG.info("Received user info from twitch api: " + userInfo);
+		TwitchUserInfo userInfo = usersData.getData()
+			.get(0);
+		LOG.info("Received users info from twitch api: " + userInfo);
 		return userInfo;
 	}
 }

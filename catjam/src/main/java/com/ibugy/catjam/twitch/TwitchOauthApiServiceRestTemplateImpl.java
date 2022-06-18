@@ -9,8 +9,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.ibugy.catjam.twitch.model.TwitchOauthToken;
@@ -30,12 +34,16 @@ public class TwitchOauthApiServiceRestTemplateImpl implements TwitchOauthApiServ
 
 	@Override
 	public TwitchOauthToken getAccessToken(String clientId, String clientSecret) {
-		String body = String.format("client_id:{%s}&client_secret:{%s}&grant_type:client_credentials", clientId, clientSecret);
-		HttpEntity<String> httpEntity = new HttpEntity<>(body);
-		LOG.info("Getting access token from twitch oauth api");
-		LOG.info(httpEntity);
-		TwitchOauthToken token = restTemplate.exchange(apiUrl, HttpMethod.GET, httpEntity, TwitchOauthToken.class)
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+		form.add("client_id", clientId);
+		form.add("client_secret", clientSecret);
+		form.add("grant_type", "client_credentials");
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(form, headers);
+		TwitchOauthToken token = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, TwitchOauthToken.class)
 			.getBody();
+		LOG.info("Received token from twitch oauth2: " + token);
 		return token;
 	}
 }
